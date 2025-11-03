@@ -3,22 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Two-Person Negotiation (5 rounds)</title>
+  <title>Negotiation v1 — A proposes, B decides</title>
   <link rel="stylesheet" href="styles.css" />
-  <meta name="description" content="Two-person negotiation game: 5 rounds, Accept/Reject, optional counteroffer, transcript download." />
+  <meta name="description" content="First version: A proposes for up to 5 rounds; B accepts or rejects." />
 </head>
 <body>
   <main class="container">
     <header class="header">
-      <h1>Two-Person Negotiation</h1>
-      <p class="sub">You are <strong>Agent A</strong>. The offer is A’s share; B receives <code>1 − A</code>. You have at most <strong>5 rounds</strong>.</p>
+      <h1>Negotiation v1</h1>
+      <p class="sub">You are <strong>Player B</strong>. A proposes A’s share; you only <strong>Accept</strong> or <strong>Reject</strong>. At most <strong>5 rounds</strong>.</p>
     </header>
 
     <section class="card">
       <div class="row">
         <div class="pill" id="sessionId"></div>
         <div class="pill" id="roundPill">Round: 0 / 5</div>
-        <div class="pill" id="proposerPill">Proposer: —</div>
+        <div class="pill" id="proposerPill">Proposer: A</div>
         <div class="pill" id="statusPill">Status: In progress</div>
       </div>
 
@@ -36,15 +36,10 @@
       <div class="controls">
         <button class="btn btn-accept" id="acceptBtn">Accept</button>
         <button class="btn btn-reject" id="rejectBtn">Reject</button>
-        <div class="counter">
-          <label for="counterInput">Counteroffer (A):</label>
-          <input id="counterInput" type="number" step="0.01" min="0" max="1" placeholder="e.g., 0.55" />
-          <button class="btn btn-ghost" id="counterBtn" title="Record your counter (does not auto-accept)">Record Counter</button>
-        </div>
         <button class="btn btn-secondary" id="resetBtn">Reset Session</button>
       </div>
 
-      <p class="hint">If no agreement by round 5, outcome is <strong>Rejected</strong>. “Record Counter” logs your preference and moves to the next round.</p>
+      <p class="hint">If no agreement by round 5, outcome is <strong>Rejected</strong>. Proposer is always A in this version.</p>
     </section>
 
     <section class="card">
@@ -60,11 +55,9 @@
           <thead>
             <tr>
               <th>Round</th>
-              <th>Proposer</th>
               <th>Offer A</th>
               <th>Offer B</th>
               <th>Decision</th>
-              <th>Counter (A)</th>
               <th>Timestamp</th>
             </tr>
           </thead>
@@ -74,7 +67,7 @@
     </section>
 
     <footer class="footer">
-      <span>© <span id="year"></span> Two-Person Negotiation</span>
+      <span>© <span id="year"></span> Negotiation v1</span>
       <span><a href="#" id="ghHelp">How to run</a></span>
     </footer>
   </main>
@@ -82,13 +75,12 @@
   <dialog id="helpDialog">
     <h3>Run in Browser / Publish to GitHub Pages</h3>
     <ol>
-      <li>Open <code>index.html</code> directly in your browser, or serve locally:
+      <li>Open <code>index.html</code> directly, or serve locally:
         <pre><code>python -m http.server 8000
 # or
 npx serve</code></pre>
       </li>
-      <li>Commit to GitHub and enable <strong>GitHub Pages</strong> (Settings → Pages → Source: <em>main / root</em>).
-      </li>
+      <li>Commit to GitHub and enable <strong>GitHub Pages</strong> (Settings → Pages → Source: <em>main / root</em>).</li>
     </ol>
     <div class="dialog-actions">
       <button class="btn btn-secondary" id="closeHelp">Close</button>
