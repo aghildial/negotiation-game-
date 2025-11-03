@@ -1,9 +1,8 @@
 // Negotiation v1 — A proposes for up to 5 rounds; B can only Accept or Reject.
-// Vanilla JS, no dependencies.
+// Offers are randomized but skewed to favor B (i.e., A is small, B is large).
 
 (function(){
   const MAX_ROUNDS = 5;
-  const PROPOSER_BIAS = 0.08; // A favors self slightly
 
   const $ = (id)=>document.getElementById(id);
   const roundPill = $("roundPill");
@@ -17,7 +16,6 @@
   const downloadCsvBtn = $("downloadCsvBtn");
   const copyJsonBtn = $("copyJsonBtn");
   const sessionIdEl = $("sessionId");
-  const ghHelp = $("ghHelp");
   const helpDialog = $("helpDialog");
   const closeHelp = $("closeHelp");
 
@@ -43,7 +41,7 @@
     render();
   }
 
-  // Beta RNG: Gamma sampler + Box-Muller normal
+  // Beta RNG via Gamma sampler
   function randBeta(alpha, beta){
     function normal01(){
       const u = 1 - Math.random();
@@ -70,12 +68,13 @@
     return x/(x+y);
   }
 
+  // Draw an offer where A's share is small on average (e.g., mean ≈ 0.30) => B gets ≈ 0.70
   function drawOffer(round){
-    // Proposer is always A in v1
-    const conc = 14 + 6*round;
-    const center = 0.5 + PROPOSER_BIAS; // A favors self slightly
-    const alpha = Math.max(center*conc, 1e-6);
-    const beta  = Math.max((1-center)*conc, 1e-6);
+    // increase concentration slightly with round to feel "more serious"
+    const conc = 16 + 4*round;
+    const meanA = 0.30;                 // A is small (B is large)
+    const alpha = Math.max(meanA*conc, 1e-6);
+    const beta  = Math.max((1-meanA)*conc, 1e-6);
     let a = randBeta(alpha, beta);
     a = Math.max(0, Math.min(1, a));
     return [a, 1-a];
@@ -83,7 +82,6 @@
 
   function nextOffer(){
     if(state.round >= MAX_ROUNDS){
-      // Hard reject if not accepted yet
       if(!state.accepted){
         state.finished = true;
         statusPill.textContent = "Status: Rejected (no agreement)";
@@ -101,8 +99,8 @@
     roundPill.textContent = `Round: ${state.round} / ${MAX_ROUNDS}`;
 
     if(state.currentOffer){
-      offerAEl.textContent = pct(state.currentOffer[0]);
-      offerBEl.textContent = pct(state.currentOffer[1]);
+      offerAEl.textContent = pct(state.currentOffer[0]); // visually smaller in HTML
+      offerBEl.textContent = pct(state.currentOffer[1]); // visually larger in HTML
     } else {
       offerAEl.textContent = "—";
       offerBEl.textContent = "—";
@@ -122,7 +120,7 @@
       rejectBtn.disabled = false;
     }
 
-    // Transcript
+    // Transcript table
     transcriptBody.innerHTML = "";
     state.history.forEach(row=>{
       const tr = document.createElement("tr");
@@ -149,17 +147,17 @@
     });
   }
 
-  acceptBtn.addEventListener("click", ()=>{
+  // Buttons
+  document.getElementById("acceptBtn").addEventListener("click", ()=>{
     if(state.accepted || state.finished) return;
     log("accept");
     state.accepted = true;
     render();
   });
 
-  rejectBtn.addEventListener("click", ()=>{
+  document.getElementById("rejectBtn").addEventListener("click", ()=>{
     if(state.accepted || state.finished) return;
     log("reject");
-    // If round 5, rejecting ends as rejected; else next offer
     if(state.round >= MAX_ROUNDS){
       state.finished = true;
     } else {
@@ -168,9 +166,9 @@
     render();
   });
 
-  resetBtn.addEventListener("click", reset);
+  document.getElementById("resetBtn").addEventListener("click", reset);
 
-  downloadCsvBtn.addEventListener("click", ()=>{
+  document.getElementById("downloadCsvBtn").addEventListener("click", ()=>{
     const header = ["sessionId","round","offerA","offerB","decision","timestamp"];
     const lines = [header.join(",")];
     state.history.forEach(r=>{
@@ -184,12 +182,12 @@
     const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = url; a.download = `negotiation_v1_${state.sessionId}.csv`;
+    a.href = url; a.download = `negotiation_b_favored_${state.sessionId}.csv`;
     document.body.appendChild(a); a.click();
     setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 0);
   });
 
-  copyJsonBtn.addEventListener("click", ()=>{
+  document.getElementById("copyJsonBtn").addEventListener("click", ()=>{
     const payload = JSON.stringify(state.history, null, 2);
     navigator.clipboard.writeText(payload).then(()=>{
       copyJsonBtn.textContent = "Copied ✓";
@@ -197,9 +195,8 @@
     });
   });
 
-  const close = $("closeHelp");
-  $("ghHelp").addEventListener("click",(e)=>{ e.preventDefault(); $("helpDialog").showModal(); });
-  close.addEventListener("click", ()=> $("helpDialog").close());
+  document.getElementById("ghHelp").addEventListener("click",(e)=>{ e.preventDefault(); helpDialog.showModal(); });
+  closeHelp.addEventListener("click", ()=> helpDialog.close());
 
   // Init
   reset();
