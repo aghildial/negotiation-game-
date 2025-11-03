@@ -3,33 +3,37 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Negotiation v1 — A proposes, B decides</title>
+  <title>Negotiation v1 — A proposes, B decides (B favored)</title>
   <link rel="stylesheet" href="styles.css" />
-  <meta name="description" content="First version: A proposes for up to 5 rounds; B accepts or rejects." />
+  <meta name="description" content="A proposes up to 5 rounds; B accepts or rejects. Offers are random but skewed to favor B (A small, B large).">
 </head>
 <body>
   <main class="container">
     <header class="header">
-      <h1>Negotiation v1</h1>
-      <p class="sub">You are <strong>Player B</strong>. A proposes A’s share; you only <strong>Accept</strong> or <strong>Reject</strong>. At most <strong>5 rounds</strong>.</p>
+      <h1>Negotiation v1 (B-Favored)</h1>
+      <p class="sub">
+        You are <strong>Player B</strong>. A proposes A’s share; you only <strong>Accept</strong> or <strong>Reject</strong>.
+        Offers are randomized but <em>skewed to give B more</em>. Max <strong>5 rounds</strong>.
+      </p>
     </header>
 
     <section class="card">
       <div class="row">
         <div class="pill" id="sessionId"></div>
         <div class="pill" id="roundPill">Round: 0 / 5</div>
-        <div class="pill" id="proposerPill">Proposer: A</div>
+        <div class="pill">Proposer: A</div>
         <div class="pill" id="statusPill">Status: In progress</div>
       </div>
 
+      <!-- Put B first, make B visually larger -->
       <div class="offer">
         <div>
-          <div class="lbl">A’s share</div>
-          <div class="big" id="offerA">—</div>
+          <div class="lbl">B’s share</div>
+          <div class="big" id="offerB" style="font-size:44px">—</div>
         </div>
         <div>
-          <div class="lbl">B’s share</div>
-          <div class="big" id="offerB">—</div>
+          <div class="lbl">A’s share</div>
+          <div class="big" id="offerA" style="font-size:26px; opacity:.9">—</div>
         </div>
       </div>
 
@@ -67,7 +71,7 @@
     </section>
 
     <footer class="footer">
-      <span>© <span id="year"></span> Negotiation v1</span>
+      <span>© <span id="year"></span> Negotiation v1 (B-Favored)</span>
       <span><a href="#" id="ghHelp">How to run</a></span>
     </footer>
   </main>
